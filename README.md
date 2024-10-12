@@ -1,56 +1,122 @@
-# YouTube1080p Downloader
+# YouTube MP4 Downloader
 
-This Python script allows you to download YouTube videos in 1080p quality (or the best available quality up to 1080p) using the yt-dlp library.
+This Python script allows you to download YouTube videos in 1080p quality (or the best available quality up to 1080p) using the 'yt-dlp' library.
 
 ## Features
 
-- Downloads YouTube videos in up to 1080p quality
-- Combines the best video and audio streams
-- Outputs the video in MP4 format
-- Handles errors and provides detailed error information
+- **Download Video**: Extracts the best quality available from a YouTube video.
+- **Convert to MP4**: Converts the downloaded video to MP4 format with a preferred quality of 1080p.
+- **Easy to Use**: Command-line interface for quick downloads.
 
 ## Requirements
 
-- Python 3.x
-- yt-dlp library
-- FFmpeg (for video conversion and merging)
+- Python 3.6 or higher
+- [yt_dlp](https://github.com/yt-dlp/yt-dlp)
+- [FFmpeg](https://ffmpeg.org/) installed and added to your system's PATH
 
 ## Installation
 
-1. Ensure you have Python 3.x installed on your system.
-2. Install the required library using pip:
-pip install yt-dlp
+1. **Clone the Repository**
 
-3. Install FFmpeg on your system. You can download it from the [official FFmpeg website](https://ffmpeg.org/download.html).
+   ```bash
+   git clone https://github.com/yourusername/python_work.git
+   cd python_work
+   ```
+
+2. **Install Required Python Packages**
+
+   It's recommended to use a virtual environment:
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install yt_dlp
+   ```
+
+3. **Install FFmpeg**
+
+   - **Windows**:
+     - Download FFmpeg from the [official website](https://ffmpeg.org/download.html).
+     - Extract the downloaded folder.
+     - Add the `bin` folder to your system's PATH.
+
+   - **macOS**:
+     ```bash
+     brew install ffmpeg
+     ```
+
+   - **Linux**:
+     ```bash
+     sudo apt-get install ffmpeg
+     ```
 
 ## Usage
 
-You can run the script in two ways:
+Run the script with a YouTube URL as an argument:
 
-1. Provide the YouTube URL as a command-line argument:
-python YouTube1080p.py https://www.youtube.com/watch?v=VIDEO_ID
+```bash
+python YouTube1080p.py "https://www.youtube.com/watch?v=your_video_id"
+```
 
-2. Run the script without arguments and enter the URL when prompted:
-python YouTube1080p.py
+If no URL is provided as an argument, the script will prompt you to enter one.
 
+### Example
 
-The script will download the video and save it in the current directory with the video's title as the filename.
+```bash
+python YouTube1080p.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+```
 
-## How it works
+This will download the video from the provided YouTube url and save it as an MP4 file in the current directory.
 
-1. The script uses yt-dlp to extract video information and download the best quality video (up to 1080p) and audio streams separately.
-2. It then uses FFmpeg to merge the video and audio streams into a single MP4 file.
-3. The final video is saved with the original video title as the filename.
+## Script Overview
 
-## Error Handling
+```python
+import yt_dlp
+import sys
 
-If an error occurs during the download process, the script will print:
-- The error message
-- The type of error
-- Detailed error information
+def download_youtube_1080p(url):
+    ydl_opts = {
+        'format': 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080][ext=mp4]/best',
+        'outtmpl': '%(title)s.%(ext)s',
+        'no_resume': True,
+        'postprocessors': [{
+            'key': 'FFmpegVideoConvertor',
+            'preferedformat': 'mp4',
+        }],
+    }
 
-This helps in diagnosing and troubleshooting any issues that may arise during the download process.
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            title = info['title']
+            ydl.download([url])
+        print(f"Successfully downloaded: {title}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        print(f"Error type: {type(e).__name__}")
+        print(f"Error details: {e.args}")
 
-## Disclaimer
+def main():
+    if len(sys.argv) > 1:
+        url = sys.argv[1]
+    else:
+        url = input("Enter the YouTube URL: ")
+    
+    download_youtube_1080p(url)
 
-Please ensure you have the right to download and use the video content. Respect copyright laws and YouTube's terms of service.
+if __name__ == "__main__":
+    main()
+```
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Acknowledgements
+
+- [`yt_dlp`](https://github.com/yt-dlp/yt-dlp) for handling YouTube downloads and conversions.
+- [FFmpeg](https://ffmpeg.org/) for audio processing.
